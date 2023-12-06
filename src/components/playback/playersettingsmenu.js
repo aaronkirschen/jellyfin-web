@@ -125,7 +125,8 @@ function getQualitySecondaryText(player) {
     return text;
 }
 
-function showAspectRatioMenu(player, btn) {
+// showAspectRatioMenu returns { promise, resolveExternal } to allow external promise
+export function showAspectRatioMenu(player, btn) {
     // each has a name and id
     const currentId = playbackManager.getAspectRatio(player);
     const menuItems = playbackManager.getSupportedAspectRatios(player).map(function (i) {
@@ -136,17 +137,26 @@ function showAspectRatioMenu(player, btn) {
         };
     });
 
-    return actionsheet.show({
-        items: menuItems,
-        positionTo: btn
-    }).then(function (id) {
-        if (id) {
-            playbackManager.setAspectRatio(id, player);
-            return Promise.resolve();
-        }
+    let resolveExternal;
+    const promise = new Promise((resolve, reject) => {
+        resolveExternal = resolve;  // Store the resolver function
 
-        return Promise.reject();
+        actionsheet.show({
+            items: menuItems,
+            positionTo: btn
+        }).then(function (id) {
+            if (id) {
+                playbackManager.setAspectRatio(id, player);
+                resolve(id); // Internal resolve
+            } else {
+                reject(); // Or handle as needed
+            }
+        });
     });
+
+    // Return both the promise and the external resolver function
+    return { promise, resolveExternal };
+
 }
 
 function showPlaybackRateMenu(player, btn) {
@@ -200,7 +210,7 @@ function showWithUser(options, player, user) {
     }
 
     if (options.quality && supportedCommands.includes('SetMaxStreamingBitrate')
-            && user?.Policy?.EnableVideoPlaybackTranscoding) {
+        && user?.Policy?.EnableVideoPlaybackTranscoding) {
         const secondaryQualityText = getQualitySecondaryText(player);
 
         menuItems.push({
@@ -263,7 +273,9 @@ function handleSelectedOption(id, options, player) {
         case 'quality':
             return showQualityMenu(player, options.positionTo);
         case 'aspectratio':
-            return showAspectRatioMenu(player, options.positionTo);
+            // showAspectRatioMenu returns { promise, resolveExternal } to allow external promise
+            const aspectRatioMenuResult = showAspectRatioMenu(player, options.positionTo);
+            return aspectRatioMenuResult.promise;
         case 'playbackrate':
             return showPlaybackRateMenu(player, options.positionTo);
         case 'repeatmode':
@@ -286,5 +298,6 @@ function handleSelectedOption(id, options, player) {
 }
 
 export default {
-    show: show
+    show: show,
+    showAspectRatioMenu: showAspectRatioMenu
 };

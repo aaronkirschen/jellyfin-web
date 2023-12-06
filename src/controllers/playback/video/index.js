@@ -28,6 +28,7 @@ import LibraryMenu from '../../../scripts/libraryMenu';
 import { setBackdropTransparency, TRANSPARENCY_LEVEL } from '../../../components/backdrop/backdrop';
 import { pluginManager } from '../../../components/pluginManager';
 import { PluginType } from '../../../types/plugin.ts';
+import playerSettingsMenu from '../../../components/playback/playersettingsmenu';
 
 const TICKS_PER_MINUTE = 600000000;
 const TICKS_PER_SECOND = 10000000;
@@ -915,31 +916,29 @@ export default function (view) {
     function onSettingsButtonClick() {
         const btn = this;
 
-        import('../../../components/playback/playersettingsmenu').then((playerSettingsMenu) => {
-            const player = currentPlayer;
+        const player = currentPlayer;
 
-            if (player) {
-                const state = playbackManager.getPlayerState(player);
+        if (player) {
+            const state = playbackManager.getPlayerState(player);
 
-                // show subtitle offset feature only if player and media support it
-                const showSubOffset = playbackManager.supportSubtitleOffset(player)
-                    && playbackManager.canHandleOffsetOnCurrentSubtitle(player);
+            // show subtitle offset feature only if player and media support it
+            const showSubOffset = playbackManager.supportSubtitleOffset(player)
+                && playbackManager.canHandleOffsetOnCurrentSubtitle(player);
 
-                playerSettingsMenu.show({
-                    mediaType: 'Video',
-                    player: player,
-                    positionTo: btn,
-                    quality: state.MediaSource?.SupportsTranscoding,
-                    stats: true,
-                    suboffset: showSubOffset,
-                    onOption: onSettingsOption
-                }).finally(() => {
-                    resetIdle();
-                });
+            playerSettingsMenu.show({
+                mediaType: 'Video',
+                player: player,
+                positionTo: btn,
+                quality: state.MediaSource?.SupportsTranscoding,
+                stats: true,
+                suboffset: showSubOffset,
+                onOption: onSettingsOption
+            }).finally(() => {
+                resetIdle();
+            });
 
-                setTimeout(resetIdle, 0);
-            }
-        });
+            setTimeout(resetIdle, 0);
+        }
     }
 
     function onSettingsOption(selectedOption) {
@@ -1184,7 +1183,11 @@ export default function (view) {
             dialog.remove();
         }
 
-        audioTrackMenuCloseTimeout = null;
+        if (audioTrackMenuCloseTimeout) audioTrackMenuCloseTimeout = null;
+        if (aspectMenuCloseTimeout) aspectMenuCloseTimeout = null;
+        if (subtitleMenuCloseTimeout) subtitleMenuCloseTimeout = null;
+
+
     }
 
     function cycleSubtitleTrack() {
@@ -1251,6 +1254,35 @@ export default function (view) {
         audioTrackMenuCloseTimeout = setTimeout(closeDialogBackdropAndContainer, 1000);
     }
 
+    function cycleAspectRatio() {
+
+        const player = currentPlayer;
+        const currentRatio = playbackManager.getAspectRatio(player);
+        const supportedRatios = playbackManager.getSupportedAspectRatios(player);
+
+        let newIndex = supportedRatios.findIndex(r => r.id === currentRatio);
+
+        newIndex++;
+        if (newIndex >= supportedRatios.length) {
+            newIndex = 0;
+        }
+
+        const newRatio = supportedRatios[newIndex].id;
+
+        playbackManager.setAspectRatio(newRatio, player);
+
+        const {promise, resolveExternal} = playerSettingsMenu.showAspectRatioMenu(player, this);
+
+        promise.finally(() => {
+            resetIdle(); 
+          });
+      
+        aspectMenuCloseTimeout = setTimeout(() => {
+            resolveExternal(); // resolve promise externally to prevent unfulfilled promise
+            closeDialogBackdropAndContainer();  
+          }, 1000);  
+    }
+
     function onKeyDown(e) {
         clickedElement = e.target;
 
@@ -1300,7 +1332,11 @@ export default function (view) {
 
             case 's':
                 cycleSubtitleTrack();
-                break;  
+                break;
+
+            case 'z':
+                cycleAspectRatio();
+                break;
 
             case 'Enter':
                 showOsd();
@@ -1327,7 +1363,7 @@ export default function (view) {
                 playbackManager.volumeUp(currentPlayer);
                 break;
 
-            case 'Minus': 
+            case 'Minus':
             case 'NumpadSubtract':
             case 'ArrowDown':
             case 'Down':
@@ -1546,6 +1582,7 @@ export default function (view) {
     shell.enableFullscreen();
 
     let audioTrackMenuCloseTimeout;
+    let aspectMenuCloseTimeout;
     let currentPlayer;
     let comingUpNextDisplayed;
     let currentUpNextDialog;
@@ -1744,7 +1781,7 @@ export default function (view) {
                         clearTimeout(playPauseClickTimeout);
                         playPauseClickTimeout = 0;
                     } else {
-                        playPauseClickTimeout = setTimeout(function() {
+                        playPauseClickTimeout = setTimeout(function () {
                             playbackManager.playPause(currentPlayer);
                             showOsd();
                             playPauseClickTimeout = 0;
