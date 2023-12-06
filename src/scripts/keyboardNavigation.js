@@ -20,24 +20,21 @@ const KeyNames = {
     38: 'ArrowUp',
     39: 'ArrowRight',
     40: 'ArrowDown',
-    // MediaRewind (Tizen/WebOS)
-    412: 'MediaRewind',
-    // MediaStop (Tizen/WebOS)
-    413: 'MediaStop',
-    // MediaPlay (Tizen/WebOS)
-    415: 'MediaPlay',
-    // MediaFastForward (Tizen/WebOS)
-    417: 'MediaFastForward',
-    // Back (WebOS)
-    461: 'Back',
-    // Back (Tizen)
-    10009: 'Back',
-    // MediaTrackPrevious (Tizen)
-    10232: 'MediaTrackPrevious',
-    // MediaTrackNext (Tizen)
-    10233: 'MediaTrackNext',
-    // MediaPlayPause (Tizen)
-    10252: 'MediaPlayPause'
+    61: 'Equal', // (Firefox)
+    107: 'NumpadAdd',
+    109: 'NumpadSubtract',
+    173: 'Minus', // (Firefox)
+    187: 'Equal', // (Chrome/Edge)
+    189: 'Minus', // (Chrome/Edge)
+    412: 'MediaRewind', // MediaRewind (Tizen/WebOS)
+    413: 'MediaStop', // MediaStop (Tizen/WebOS)
+    415: 'MediaPlay',  // MediaPlay (Tizen/WebOS)
+    417: 'MediaFastForward', // MediaFastForward (Tizen/WebOS)
+    461: 'Back', // Back (WebOS)
+    10009: 'Back', // Back (Tizen)
+    10232: 'MediaTrackPrevious', // MediaTrackPrevious (Tizen)
+    10233: 'MediaTrackNext', // MediaTrackNext (Tizen)
+    10252: 'MediaPlayPause' // MediaPlayPause (Tizen)
 };
 
 /**

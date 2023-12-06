@@ -1297,12 +1297,15 @@ export default function (view) {
             case 'a':
                 cycleAudioTrack();
                 break;
+
             case 's':
                 cycleSubtitleTrack();
-                break;
+                break;  
+
             case 'Enter':
                 showOsd();
                 break;
+
             case 'Escape':
             case 'Back':
                 // Ignore key when some dialog is opened
@@ -1311,50 +1314,64 @@ export default function (view) {
                     e.stopPropagation();
                 }
                 break;
+
             case 'k':
                 playbackManager.playPause(currentPlayer);
                 showOsd(btnPlayPause);
                 break;
+
+            case 'Equal':
+            case 'NumpadAdd':
             case 'ArrowUp':
             case 'Up':
                 playbackManager.volumeUp(currentPlayer);
                 break;
+
+            case 'Minus': 
+            case 'NumpadSubtract':
             case 'ArrowDown':
             case 'Down':
                 playbackManager.volumeDown(currentPlayer);
                 break;
+
             case 'l':
             case 'ArrowRight':
             case 'Right':
                 playbackManager.fastForward(currentPlayer);
                 showOsd(btnFastForward);
                 break;
+
             case 'j':
             case 'ArrowLeft':
             case 'Left':
                 playbackManager.rewind(currentPlayer);
                 showOsd(btnRewind);
                 break;
+
             case 'f':
                 if (!e.ctrlKey && !e.metaKey) {
                     playbackManager.toggleFullscreen(currentPlayer);
                 }
                 break;
+
             case 'm':
                 playbackManager.toggleMute(currentPlayer);
                 break;
+
             case 'p':
             case 'P':
                 if (e.shiftKey) {
                     playbackManager.previousTrack(currentPlayer);
                 }
                 break;
+
             case 'n':
             case 'N':
                 if (e.shiftKey) {
                     playbackManager.nextTrack(currentPlayer);
                 }
                 break;
+
             case 'NavigationLeft':
             case 'GamepadDPadLeft':
             case 'GamepadLeftThumbstickLeft':
@@ -1364,6 +1381,7 @@ export default function (view) {
                     showOsd(btnRewind);
                 }
                 break;
+
             case 'NavigationRight':
             case 'GamepadDPadRight':
             case 'GamepadLeftThumbstickRight':
@@ -1373,12 +1391,15 @@ export default function (view) {
                     showOsd(btnFastForward);
                 }
                 break;
+
             case 'Home':
                 playbackManager.seekPercent(0, currentPlayer);
                 break;
+
             case 'End':
                 playbackManager.seekPercent(100, currentPlayer);
                 break;
+
             case '0':
             case '1':
             case '2':
@@ -1395,15 +1416,19 @@ export default function (view) {
                 }
                 break;
             }
+
             case '>':
                 playbackManager.increasePlaybackRate(currentPlayer);
                 break;
+
             case '<':
                 playbackManager.decreasePlaybackRate(currentPlayer);
                 break;
+
             case 'PageUp':
                 playbackManager.nextChapter(currentPlayer);
                 break;
+
             case 'PageDown':
                 playbackManager.previousChapter(currentPlayer);
                 break;
