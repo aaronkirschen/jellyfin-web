@@ -1215,6 +1215,42 @@ export default function (view) {
         subtitleMenuCloseTimeout = setTimeout(closeDialogBackdropAndContainer, 1000);
     }
 
+    function cycleAudioTrack() {
+
+        const player = currentPlayer;
+
+        const audioTrackStreams = playbackManager.audioTracks(player);
+
+        let currentIndex = playbackManager.getAudioStreamIndex(player);
+
+        let nextIndex;
+
+        if (currentIndex === undefined) {
+            // If no track selected, use first track
+            nextIndex = audioTrackStreams[0].Index;
+        } else {
+            // Find index of next track after current
+            const currentTrack = audioTrackStreams.find(t => t.Index === currentIndex);
+            const currentTrackIndex = audioTrackStreams.indexOf(currentTrack);
+
+            nextIndex = audioTrackStreams[currentTrackIndex + 1]?.Index;
+
+            if (nextIndex === undefined) {
+                nextIndex = audioTrackStreams[0].Index;
+            }
+        }
+
+        playbackManager.setAudioStreamIndex(nextIndex, player);
+
+        if (audioTrackMenuCloseTimeout !== null) {
+            // Close existing menu if its open already
+            closeDialogBackdropAndContainer();
+            clearTimeout(audioTrackMenuCloseTimeout);
+        }
+        showAudioTrackSelection();
+        audioTrackMenuCloseTimeout = setTimeout(closeDialogBackdropAndContainer, 1000);
+    }
+
     function onKeyDown(e) {
         clickedElement = e.target;
 
@@ -1258,6 +1294,9 @@ export default function (view) {
         }
 
         switch (key) {
+            case 'a':
+                cycleAudioTrack();
+                break;
             case 's':
                 cycleSubtitleTrack();
                 break;
@@ -1481,6 +1520,7 @@ export default function (view) {
 
     shell.enableFullscreen();
 
+    let audioTrackMenuCloseTimeout;
     let currentPlayer;
     let comingUpNextDisplayed;
     let currentUpNextDialog;
