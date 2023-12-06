@@ -923,7 +923,7 @@ export default function (view) {
 
                 // show subtitle offset feature only if player and media support it
                 const showSubOffset = playbackManager.supportSubtitleOffset(player)
-                        && playbackManager.canHandleOffsetOnCurrentSubtitle(player);
+                    && playbackManager.canHandleOffsetOnCurrentSubtitle(player);
 
                 playerSettingsMenu.show({
                     mediaType: 'Video',
@@ -1097,10 +1097,10 @@ export default function (view) {
             * - primary subtitle has support
             */
         const currentTrackCanAddSecondarySubtitle = playbackManager.playerHasSecondarySubtitleSupport(player)
-                && streams.length > 1
-                && secondaryStreams.length > 0
-                && currentIndex !== -1
-                && playbackManager.trackHasSecondarySubtitleSupport(playbackManager.getSubtitleStream(player, currentIndex), player);
+            && streams.length > 1
+            && secondaryStreams.length > 0
+            && currentIndex !== -1
+            && playbackManager.trackHasSecondarySubtitleSupport(playbackManager.getSubtitleStream(player, currentIndex), player);
 
         if (currentTrackCanAddSecondarySubtitle) {
             const secondarySubtitleMenuItem = {
@@ -1173,6 +1173,48 @@ export default function (view) {
         }
     }
 
+    function closeDialogBackdropAndContainer() {
+        const backdrop = document.querySelector('.dialogBackdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+
+        const dialog = document.querySelector('.dialogContainer');
+        if (dialog) {
+            dialog.remove();
+        }
+
+        audioTrackMenuCloseTimeout = null;
+    }
+
+    function cycleSubtitleTrack() {
+        const player = currentPlayer;
+        const subtitleTrackStreams = playbackManager.subtitleTracks(player);
+
+        let currentIndex = playbackManager.getSubtitleStreamIndex(player);
+
+        let nextIndex;
+        if (currentIndex === undefined) {
+            // If no track selected, use first track
+            nextIndex = subtitleTrackStreams[0].Index;
+        } else {
+            // Find index of next track in list after current
+            const currentTrack = subtitleTrackStreams.find(t => t.Index === currentIndex);
+            const currentTrackIndex = subtitleTrackStreams.indexOf(currentTrack);
+            nextIndex = subtitleTrackStreams[currentTrackIndex + 1]?.Index;
+        }
+        playbackManager.setSubtitleStreamIndex(nextIndex, player);
+
+        if (subtitleMenuCloseTimeout) {
+            // Close existing menu if open
+            closeDialogBackdropAndContainer();
+            clearTimeout(subtitleMenuCloseTimeout);
+        }
+
+        showSubtitleTrackSelection();
+        subtitleMenuCloseTimeout = setTimeout(closeDialogBackdropAndContainer, 1000);
+    }
+
     function onKeyDown(e) {
         clickedElement = e.target;
 
@@ -1216,6 +1258,9 @@ export default function (view) {
         }
 
         switch (key) {
+            case 's':
+                cycleSubtitleTrack();
+                break;
             case 'Enter':
                 showOsd();
                 break;
@@ -1455,6 +1500,7 @@ export default function (view) {
     let programEndDateMs = 0;
     let playbackStartTimeTicks = 0;
     let subtitleSyncOverlay;
+    let subtitleMenuCloseTimeout;
     const nowPlayingVolumeSlider = view.querySelector('.osdVolumeSlider');
     const nowPlayingVolumeSliderContainer = view.querySelector('.osdVolumeSliderContainer');
     const nowPlayingPositionSlider = view.querySelector('.osdPositionSlider');
