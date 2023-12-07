@@ -1598,6 +1598,11 @@ class PlaybackManager {
             return stream ? getDeliveryMethod(stream) === 'External' : false;
         };
 
+        self.subtitleStreamSupportsExternal = function(index, player) {
+            const stream = self.getSubtitleStream(player, index);
+            return stream ? stream.SupportsExternalStream : false;
+          };
+
         self.setSubtitleOffset = function (value, player) {
             player = player || self._currentPlayer;
             if (player.setSubtitleOffset) {
@@ -1614,8 +1619,11 @@ class PlaybackManager {
 
         self.canHandleOffsetOnCurrentSubtitle = function (player) {
             const index = self.getSubtitleStreamIndex(player);
-            return index !== -1 && self.isSubtitleStreamExternal(index, player);
-        };
+            return index !== -1 && (
+                self.isSubtitleStreamExternal(index, player) ||
+                self.subtitleStreamSupportsExternal(index, player)
+              );
+            };
 
         self.seek = function (ticks, player) {
             ticks = Math.max(0, ticks);
