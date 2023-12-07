@@ -1384,6 +1384,7 @@ export default function (view) {
                 showOsd(btnRewind);
                 break;
 
+            case 'Backslash':
             case 'f':
                 if (!e.ctrlKey && !e.metaKey) {
                     playbackManager.toggleFullscreen(currentPlayer);

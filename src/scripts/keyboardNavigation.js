@@ -26,6 +26,7 @@ const KeyNames = {
     173: 'Minus', // (Firefox)
     187: 'Equal', // (Chrome/Edge)
     189: 'Minus', // (Chrome/Edge)
+    220: 'Backslash',
     412: 'MediaRewind', // MediaRewind (Tizen/WebOS)
     413: 'MediaStop', // MediaStop (Tizen/WebOS)
     415: 'MediaPlay',  // MediaPlay (Tizen/WebOS)
