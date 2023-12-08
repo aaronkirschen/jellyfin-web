@@ -33,6 +33,8 @@ import playerSettingsMenu from '../../../components/playback/playersettingsmenu'
 const TICKS_PER_MINUTE = 600000000;
 const TICKS_PER_SECOND = 10000000;
 
+const SUBTITLE_OFFSET_STEP = 250;
+
 function getOpenedDialog() {
     return document.querySelector('.dialogContainer .dialog.opened');
 }
@@ -1271,16 +1273,53 @@ export default function (view) {
 
         playbackManager.setAspectRatio(newRatio, player);
 
-        const {promise, resolveExternal} = playerSettingsMenu.showAspectRatioMenu(player, this);
+        const { promise, resolveExternal } = playerSettingsMenu.showAspectRatioMenu(player, this);
 
         promise.finally(() => {
-            resetIdle(); 
-          });
-      
+            resetIdle();
+        });
+
         aspectMenuCloseTimeout = setTimeout(() => {
             resolveExternal(); // resolve promise externally to prevent unfulfilled promise
-            closeDialogBackdropAndContainer();  
-          }, 1000);  
+            closeDialogBackdropAndContainer();
+        }, 1000);
+    }
+
+
+    function increaseSubtitleOffset() {
+        const player = playbackManager.getCurrentPlayer();
+        const currentOffset = playbackManager.getPlayerSubtitleOffset(player);
+        playbackManager.setSubtitleOffset(currentOffset + SUBTITLE_OFFSET_STEP, player);
+        showSubtitleOffset();
+    }
+
+    function decreaseSubtitleOffset() {
+        const player = playbackManager.getCurrentPlayer();
+        const currentOffset = playbackManager.getPlayerSubtitleOffset(player);
+        playbackManager.setSubtitleOffset(currentOffset - SUBTITLE_OFFSET_STEP, player);
+        showSubtitleOffset();
+    }
+
+    function showSubtitleOffset() {
+        const player = playbackManager.getCurrentPlayer();
+        const currentOffset = playbackManager.getPlayerSubtitleOffset(player);
+        const menuItems = [{
+            name: `${currentOffset}ms`,
+            id: 'offset' 
+          }];
+          
+        import('../../../components/actionSheet/actionSheet').then(({ default: actionsheet }) => {
+
+            actionsheet.show({
+                title: `Subtitle Offset`,
+                items: menuItems,
+                timeout: 1000,
+                positionTo: this
+            });
+
+        }).finally(() => {
+            resetIdle();
+        });
     }
 
     function onKeyDown(e) {
@@ -1331,9 +1370,17 @@ export default function (view) {
                 break;
 
             case 's':
-                cycleSubtitleTrack();
+                if (e.altKey) {
+                    increaseSubtitleOffset();
+                } else {
+                    cycleSubtitleTrack();
+                }
                 break;
-
+            case 'S':
+                if (e.altKey) {
+                    decreaseSubtitleOffset();
+                }
+                break;
             case 'z':
                 cycleAspectRatio();
                 break;
