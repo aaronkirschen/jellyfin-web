@@ -20,6 +20,8 @@ const KeyNames = {
     38: 'ArrowUp',
     39: 'ArrowRight',
     40: 'ArrowDown',
+    45: 'Insert',
+    46: 'Delete',
     61: 'Equal', // (Firefox)
     107: 'NumpadAdd',
     109: 'NumpadSubtract',

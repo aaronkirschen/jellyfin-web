@@ -1442,6 +1442,7 @@ export default function (view) {
                 playbackManager.toggleMute(currentPlayer);
                 break;
 
+            case 'Delete':
             case 'p':
             case 'P':
                 if (e.shiftKey) {
@@ -1449,6 +1450,7 @@ export default function (view) {
                 }
                 break;
 
+            case 'Insert':
             case 'n':
             case 'N':
                 if (e.shiftKey) {
